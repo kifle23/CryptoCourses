@@ -3,8 +3,19 @@ pragma solidity ^0.8.13;
 
 contract Faucet {
     uint public numOfFunders;
+    address public owner;
+
     mapping(address => bool) private funders;
     address[] private funderList;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this function");
+        _;
+    }
 
     modifier limitWithdraw(uint amount) {
         require(amount <= address(this).balance, "Insufficient balance");
@@ -13,6 +24,10 @@ contract Faucet {
             "To much amount requested:Can not withdraw more than 0.1 ether"
         );
         _;
+    }
+
+    function transferOwnership(address newOwner) external onlyOwner {
+        owner = newOwner;
     }
 
     receive() external payable {}
