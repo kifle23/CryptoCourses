@@ -1,21 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract Faucet {
+import "./Owned.sol";
+
+contract Faucet is Owned {
     uint public numOfFunders;
-    address public owner;
 
     mapping(address => bool) private funders;
     address[] private funderList;
-
-    constructor() {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this function");
-        _;
-    }
 
     modifier limitWithdraw(uint amount) {
         require(amount <= address(this).balance, "Insufficient balance");
@@ -24,10 +16,6 @@ contract Faucet {
             "To much amount requested:Can not withdraw more than 0.1 ether"
         );
         _;
-    }
-
-    function transferOwnership(address newOwner) external onlyOwner {
-        owner = newOwner;
     }
 
     receive() external payable {}
@@ -43,6 +31,10 @@ contract Faucet {
 
     function withdraw(uint amount) external limitWithdraw(amount) {
         payable(msg.sender).transfer(amount);
+    }
+
+    function withdrawAll() external onlyOwner {
+        payable(owner).transfer(address(this).balance);
     }
 
     function getAllFunders() external view returns (address[] memory) {
