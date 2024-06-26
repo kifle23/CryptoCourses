@@ -6,6 +6,15 @@ contract Faucet {
     mapping(address => bool) private funders;
     address[] private funderList;
 
+    modifier limitWithdraw(uint amount) {
+        require(amount <= address(this).balance, "Insufficient balance");
+        require(
+            amount <= 0.1 ether,
+            "To much amount requested:Can not withdraw more than 0.1 ether"
+        );
+        _;
+    }
+
     receive() external payable {}
 
     function addFunds() external payable {
@@ -17,12 +26,7 @@ contract Faucet {
         }
     }
 
-    function withdraw(uint amount) external {
-        require(amount <= address(this).balance, "Insufficient balance");
-        require(
-            amount <= 0.1 ether,
-            "To much amount requested:Can not withdraw more than 0.1 ether"
-        );
+    function withdraw(uint amount) external limitWithdraw(amount) {
         payable(msg.sender).transfer(amount);
     }
 
