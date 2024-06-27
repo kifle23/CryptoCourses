@@ -20,11 +20,6 @@ function App() {
       const provider = await detectEthereumProvider();
 
       if (provider) {
-        try {
-          await (provider as any).request({ method: "eth_requestAccounts" });
-        } catch (error) {
-          console.error("User denied account access");
-        }
         setWeb3Api({
           provider,
           web3: new Web3(provider as any),
@@ -49,16 +44,29 @@ function App() {
   return (
     <div className="faucet-wrapper">
       <div className="faucet">
-        <span>
-          <strong>Connected Account:</strong>{" "}
-          {account ? account : "No account connected"}
-        </span>
-        <div className="balance-view is-size-2">
+        <div className="is-flex is-align-items-center">
+          <span>
+            <strong className="mr-2">Account:</strong>{" "}
+          </span>
+          {account ? (
+            <span>{account}</span>
+          ) : (
+            <button
+              className="button is-samll"
+              onClick={() =>
+                web3Api.provider.request({ method: "eth_requestAccounts" })
+              }
+            >
+              Connect Wallet
+            </button>
+          )}
+        </div>
+        <div className="balance-view is-size-2 my-4">
           Current Balance: <strong>10</strong>ETH
         </div>
 
-        <button className="button mr-2">Donate</button>
-        <button className="button">Withdraw</button>
+        <button className="button mr-2 is-link">Donate</button>
+        <button className="button is-primary">Withdraw</button>
       </div>
     </div>
   );
