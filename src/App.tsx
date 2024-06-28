@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import Web3 from "web3";
-import detectEthereumProvider from "@metamask/detect-provider";
 import { ethers } from "ethers";
+import Web3 from "web3";
 import { loadContract } from "./utils/load-contract";
+import { loadWeb3Provider } from "./utils/loadProvider";
+import AccountInfo from "./components/AccountInfo/AccountInfo";
+import Actions from "./components/Actions/Actions";
 
 interface Web3Api {
   provider: any;
@@ -26,19 +28,12 @@ function App() {
   const [balance, setBalance] = useState<string>();
 
   useEffect(() => {
-    const loadProvider = async () => {
-      const provider = await detectEthereumProvider();
-
-      if (provider) {
-        setWeb3Api({
-          provider,
-          web3: new Web3(provider as any),
-        });
-      } else {
-        console.log("Please install MetaMask!");
-      }
+    const initializeWeb3 = async () => {
+      const api = await loadWeb3Provider();
+      setWeb3Api(api);
     };
-    loadProvider();
+
+    initializeWeb3();
   }, []);
 
   useEffect(() => {
@@ -50,58 +45,49 @@ function App() {
         setBalance(web3Api.web3.utils.fromWei(balance, "ether"));
       }
     };
-    web3Api.web3 && getAccounts();
+
+    if (web3Api.web3) {
+      getAccounts();
+    }
   }, [web3Api.web3]);
 
   useEffect(() => {
     const loadProvider = async () => {
-      let signer = null;
-      let provider;
-      if (window.ethereum == null) {
-        provider = ethers.getDefaultProvider();
+      if (!window.ethereum) {
         console.log("Please install MetaMask!");
-      } else {
-        provider = new ethers.BrowserProvider(window.ethereum);
-        signer = await provider.getSigner();
-        try {
-          await window.ethereum.request({ method: "eth_requestAccounts" });
-          const contract = await loadContract("Faucet", signer);
-          setContract(contract);
-        } catch (error) {
-          console.error("Failed to connect wallet:", error);
-        }
+        return;
+      }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const contract = await loadContract("Faucet", signer);
+        setContract(contract);
+      } catch (error) {
+        console.error("Failed to connect wallet:", error);
       }
     };
 
     loadProvider();
   }, []);
 
+  const connectWallet = async () => {
+    if (web3Api.provider) {
+      await web3Api.provider.request({ method: "eth_requestAccounts" });
+    }
+  };
+
   return (
     <div className="faucet-wrapper">
       <div className="faucet">
-        <div className="is-flex is-align-items-center">
-          <span>
-            <strong className="mr-2">Account:</strong>{" "}
-          </span>
-          {account ? (
-            <span>{account}</span>
-          ) : (
-            <button
-              className="button is-samll"
-              onClick={() =>
-                web3Api.provider.request({ method: "eth_requestAccounts" })
-              }
-            >
-              Connect Wallet
-            </button>
-          )}
-        </div>
-        <div className="balance-view is-size-2 my-4">
-          Current Balance: <strong>{balance}</strong>ETH
-        </div>
-
-        <button className="button mr-2 is-link">Donate</button>
-        <button className="button is-primary">Withdraw</button>
+        <AccountInfo
+          account={account}
+          balance={balance}
+          connectWallet={connectWallet}
+        />
+        <Actions />
       </div>
     </div>
   );
