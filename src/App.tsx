@@ -37,41 +37,35 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const getAccounts = async () => {
-      if (web3Api.web3) {
-        const accounts = await web3Api.web3.eth.getAccounts();
-        setAccount(accounts[0]);
-        const balance = await web3Api.web3.eth.getBalance(accounts[0]);
-        setBalance(web3Api.web3.utils.fromWei(balance, "ether"));
-      }
-    };
-
-    if (web3Api.web3) {
-      getAccounts();
-    }
-  }, [web3Api.web3]);
-
-  useEffect(() => {
-    const loadProvider = async () => {
-      if (!window.ethereum) {
-        console.log("Please install MetaMask!");
-        return;
-      }
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-
+    const fetchData = async () => {
       try {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const contract = await loadContract("Faucet", signer);
-        setContract(contract);
+        if (web3Api.web3) {
+          const accounts = await web3Api.web3.eth.getAccounts();
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+            const balance = await web3Api.web3.eth.getBalance(accounts[0]);
+            setBalance(web3Api.web3.utils.fromWei(balance, "ether"));
+          } else {
+            console.warn("No accounts found");
+          }
+
+          if (window.ethereum) {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+            const contract = await loadContract("Faucet", signer, accounts[0]);
+            setContract(contract);
+          } else {
+            console.log("Please install MetaMask!");
+          }
+        }
       } catch (error) {
-        console.error("Failed to connect wallet:", error);
+        console.error("Error fetching account info:", error);
       }
     };
 
-    loadProvider();
-  }, []);
+    fetchData();
+  }, [web3Api.web3]);
 
   const connectWallet = async () => {
     if (web3Api.provider) {
