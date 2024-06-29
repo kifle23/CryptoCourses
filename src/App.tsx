@@ -23,9 +23,7 @@ function App() {
     provider: null,
     web3: null,
   });
-  const [account, setAccount] = useState<string>();
   const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [balance, setBalance] = useState<string>();
 
   useEffect(() => {
     const initializeWeb3 = async () => {
@@ -37,19 +35,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchContract = async () => {
       try {
         if (web3Api.web3) {
-          const accounts = await web3Api.web3.eth.getAccounts();
-          if (accounts.length > 0) {
-            setAccount(accounts[0]);
-            const balance = await web3Api.web3.eth.getBalance(accounts[0]);
-            setBalance(web3Api.web3.utils.fromWei(balance, "ether"));
-          } else {
-            console.warn("No accounts found");
-          }
-
           if (window.ethereum) {
+            const accounts = await web3Api.web3.eth.getAccounts();
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -64,7 +54,7 @@ function App() {
       }
     };
 
-    fetchData();
+    fetchContract();
   }, [web3Api.web3]);
 
   const connectWallet = async () => {
@@ -76,11 +66,7 @@ function App() {
   return (
     <div className="faucet-wrapper">
       <div className="faucet">
-        <AccountInfo
-          account={account}
-          balance={balance}
-          connectWallet={connectWallet}
-        />
+        <AccountInfo web3Api={web3Api} connectWallet={connectWallet} />
         <Actions />
       </div>
     </div>
