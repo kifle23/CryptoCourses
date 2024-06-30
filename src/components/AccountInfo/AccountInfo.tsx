@@ -1,3 +1,4 @@
+import { formatEther } from "ethers";
 import React, { useEffect, useState } from "react";
 import Web3 from "web3";
 
@@ -5,6 +6,7 @@ interface AccountInfoProps {
   web3Api: {
     provider: any;
     web3: Web3 | null;
+    address: string;
   };
   connectWallet: () => void;
 }
@@ -18,20 +20,21 @@ const AccountInfo: React.FC<AccountInfoProps> = ({
 
   useEffect(() => {
     const getAccountInfo = async () => {
-      try {
-        if (web3Api.web3) {
-          const address = "0x9D286e80Ecd17561658c53EBae3c88f900Bdf204";
-          const balance = await web3Api.web3.eth.getBalance(address);
+      const { provider, web3, address } = web3Api;
+      if (web3 && address) {
+        try {
+          const balanceWei = await provider.getBalance(address);
+          const balanceEth = formatEther(balanceWei);
           setAccount(address);
-          setBalance(web3Api.web3.utils.fromWei(balance, "ether"));
+          setBalance(balanceEth);
+        } catch (error) {
+          console.error("Error fetching account info:", error);
         }
-      } catch (error) {
-        console.error("Error fetching account info:", error);
       }
     };
 
     getAccountInfo();
-  }, [web3Api.web3]);
+  }, [web3Api]);
 
   return (
     <>
