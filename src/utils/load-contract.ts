@@ -1,15 +1,27 @@
-import { ethers } from "ethers";
+import { JsonRpcProvider, ethers } from "ethers";
 
-export const loadContract = async (name: string, signer: ethers.Signer, account: string) => {
-  const res = await fetch(`/contracts/${name}.json`);
-  const Artifact = await res.json();
+export const getProvider = (url: string): JsonRpcProvider => {
+  return new JsonRpcProvider(url);
+};
 
-  const provider = signer.provider;
-  if (!provider) {
-    throw new Error("Signer does not have an associated provider");
+export const getNetworkName = (network: ethers.Network): string => {
+  if (network.chainId === BigInt(1337)) {
+    return "ganache";
   }
+  return "unknown";
+};
 
-  const contract = new ethers.Contract(account, Artifact.abi, signer);
+export const loadContract = async (provider: JsonRpcProvider, name: string, address: string): Promise<ethers.Contract | null> => {
+  try {
+    const res = await fetch(`/contracts/${name}.json`);
+    const artifact = await res.json();
 
-  return contract;
+    if (address && artifact.abi) {
+      return new ethers.Contract(address, artifact.abi, provider);
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to load contract:", error);
+    return null;
+  }
 };
