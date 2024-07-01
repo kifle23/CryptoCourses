@@ -26,7 +26,7 @@ function App() {
     web3: null,
     contract: null,
     address: "",
-    providerUrl: ""
+    providerUrl: "",
   });
 
   useEffect(() => {
@@ -40,7 +40,6 @@ function App() {
     initializeWeb3();
   }, []);
 
- 
   const connectWallet = async () => {
     if (web3Api.provider) {
       await web3Api.provider.request({ method: "eth_requestAccounts" });
@@ -51,7 +50,7 @@ function App() {
     <div className="faucet-wrapper">
       <div className="faucet">
         <AccountInfo web3Api={web3Api} connectWallet={connectWallet} />
-        <Actions />
+        <Actions web3Api={web3Api} />
       </div>
     </div>
   );
