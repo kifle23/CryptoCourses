@@ -1,39 +1,41 @@
-import React, { useCallback } from "react";
-import { parseEther } from "ethers";
+import React from "react";
+import { ethers, parseEther } from "ethers";
 
 interface ActionProps {
   web3Api: {
     provider: any;
-    address: string;
+    contract: ethers.Contract | null;
   };
   reloadAccountInfo: () => void;
+  account: string;
 }
 
-const Actions: React.FC<ActionProps> = ({ web3Api, reloadAccountInfo }) => {
-  const addFunds =useCallback(async () => {
-    const { provider, address } = web3Api;
+const Actions: React.FC<ActionProps> = ({
+  web3Api,
+  reloadAccountInfo,
+  account,
+}) => {
+  const addFunds = async () => {
+    const { contract } = web3Api;
 
-    if (provider && address) {
+    if (account && contract) {
       try {
-        const signer = await provider.getSigner();
-        const tx = await signer.sendTransaction({
-          to: address,
-          value: parseEther("1.0"),
+        await contract.addFunds({
+          from: account,
+          value: parseEther("0.1"),
         });
-
-        await tx.wait();
         alert("Funds added to your account!");
         reloadAccountInfo();
       } catch (error) {
         console.error("Error adding funds:", error);
       }
     }
-  }, [web3Api, reloadAccountInfo]);
+  };
 
   return (
     <>
       <button className="button mr-2 is-link" onClick={addFunds}>
-        Donate 1eth
+        Donate 0.1eth
       </button>
       <button className="button is-primary">Withdraw</button>
     </>

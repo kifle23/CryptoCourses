@@ -22,7 +22,8 @@ export const loadWeb3Provider = async (
     const networkName = getNetworkName(network);
     console.log("Provider loaded and connected to network:", networkName);
 
-    const contract = await loadContract(provider, name, address);
+    const signer = await provider.getSigner();
+    const contract = await loadContract(provider, name, address, signer);
     const web3 = new Web3(providerUrl);
 
     return { provider, web3, contract, address, providerUrl };
