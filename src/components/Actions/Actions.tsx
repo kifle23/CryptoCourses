@@ -6,9 +6,10 @@ interface ActionProps {
     provider: any;
     address: string;
   };
+  reloadAccountInfo: () => void;
 }
 
-const Actions: React.FC<ActionProps> = ({ web3Api }) => {
+const Actions: React.FC<ActionProps> = ({ web3Api, reloadAccountInfo }) => {
   const addFunds =useCallback(async () => {
     const { provider, address } = web3Api;
 
@@ -22,11 +23,12 @@ const Actions: React.FC<ActionProps> = ({ web3Api }) => {
 
         await tx.wait();
         alert("Funds added to your account!");
+        reloadAccountInfo();
       } catch (error) {
         console.error("Error adding funds:", error);
       }
     }
-  }, [web3Api]);
+  }, [web3Api, reloadAccountInfo]);
 
   return (
     <>

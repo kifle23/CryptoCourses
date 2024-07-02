@@ -28,6 +28,7 @@ function App() {
     address: "",
     providerUrl: "",
   });
+  const [reload, setReload] = useState<boolean>(false);
 
   useEffect(() => {
     const initializeWeb3 = async () => {
@@ -46,11 +47,16 @@ function App() {
     }
   };
 
+  const reloadAccountInfo = () => {
+    setReload(!reload);
+  };
+
+
   return (
     <div className="faucet-wrapper">
       <div className="faucet">
-        <AccountInfo web3Api={web3Api} connectWallet={connectWallet} />
-        <Actions web3Api={web3Api} />
+        <AccountInfo web3Api={web3Api} connectWallet={connectWallet} reload={reload} />
+        <Actions web3Api={web3Api} reloadAccountInfo={reloadAccountInfo} />
       </div>
     </div>
   );

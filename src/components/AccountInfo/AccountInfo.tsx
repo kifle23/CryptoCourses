@@ -9,11 +9,13 @@ interface AccountInfoProps {
     address: string;
   };
   connectWallet: () => void;
+  reload: boolean;
 }
 
 const AccountInfo: React.FC<AccountInfoProps> = ({
   web3Api,
   connectWallet,
+  reload,
 }) => {
   const [account, setAccount] = useState<string>();
   const [balance, setBalance] = useState<string>();
@@ -34,7 +36,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({
     };
 
     getAccountInfo();
-  }, [web3Api]);
+  }, [web3Api, reload]);
 
   return (
     <>
