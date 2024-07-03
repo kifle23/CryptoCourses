@@ -1,9 +1,9 @@
 import Web3 from "web3";
-import { JsonRpcProvider, ethers } from "ethers";
-import { getProvider, getNetworkName, loadContract } from "./load-contract";
+import { ethers } from "ethers";
+import { getNetworkName, getProvider, loadContract } from "./load-contract";
 
 interface Web3Api {
-  provider: JsonRpcProvider;
+  provider: any;
   web3: Web3 | null;
   contract: ethers.Contract | null;
   address: string;
@@ -13,16 +13,16 @@ export const loadWeb3Provider = async (
   name: string,
   address: string,
   providerUrl: string,
-  account: string
 ): Promise<Web3Api> => {
-  const provider = getProvider(providerUrl);
+  const provider = getProvider();
+  let signer = null;
 
   try {
+    signer = await provider.getSigner();
     const network = await provider.getNetwork();
     const networkName = getNetworkName(network);
     console.log("Provider loaded and connected to network:", networkName);
 
-    const signer = await provider.getSigner();
     const contract = await loadContract(provider, name, address, signer);
     const web3 = new Web3(providerUrl);
 

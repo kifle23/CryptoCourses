@@ -52,7 +52,7 @@ const Actions: React.FC<ActionProps> = ({
         Donate 0.1eth
       </button>
       <button className="button is-primary" onClick={withdraw}>
-        Withdraw
+        Withdraw 0.1eth
       </button>
     </>
   );

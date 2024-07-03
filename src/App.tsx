@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import "./App.css";
-import { JsonRpcProvider, ethers } from "ethers";
+import { ethers } from "ethers";
 import Web3 from "web3";
 import { loadWeb3Provider } from "./utils/loadProvider";
 import AccountInfo from "./components/AccountInfo/AccountInfo";
 import Actions from "./components/Actions/Actions";
 
 interface Web3Api {
-  provider: JsonRpcProvider;
+  provider: any;
   web3: Web3 | null;
   contract: ethers.Contract | null;
   address: string;
@@ -21,7 +21,7 @@ declare global {
 
 function App() {
   const [web3Api, setWeb3Api] = useState<Web3Api>({
-    provider: new JsonRpcProvider(),
+    provider: null,
     web3: null,
     contract: null,
     address: "",
@@ -54,7 +54,7 @@ function App() {
       const address = "0x9D286e80Ecd17561658c53EBae3c88f900Bdf204";
       const providerUrl = "http://127.0.0.1:7545";
       setAccountListener();
-      const api = await loadWeb3Provider("Faucet", address, providerUrl, account);
+      const api = await loadWeb3Provider("Faucet", address, providerUrl);
       setWeb3Api(api);
     };
 
@@ -69,10 +69,7 @@ function App() {
     }
   }, []);
 
-  const reloadAccountInfo = useCallback(() => {
-    setReload((prevReload) => !prevReload);
-  }, []);
-
+  const reloadAccountInfo = useCallback(() => setReload(!reload), [reload]);
   return (
     <div className="faucet-wrapper">
       <div className="faucet">

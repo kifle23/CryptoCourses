@@ -1,7 +1,7 @@
-import { JsonRpcProvider, ethers } from "ethers";
+import { ethers } from "ethers";
 
-export const getProvider = (url: string): JsonRpcProvider => {
-  return new JsonRpcProvider(url);
+export const getProvider = (): ethers.BrowserProvider => {
+  return new ethers.BrowserProvider(window.ethereum);
 };
 
 export const getNetworkName = (network: ethers.Network): string => {
@@ -12,7 +12,7 @@ export const getNetworkName = (network: ethers.Network): string => {
 };
 
 export const loadContract = async (
-  provider: JsonRpcProvider,
+  provider: any,
   name: string,
   address: string,
   signer: ethers.Signer
