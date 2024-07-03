@@ -7,13 +7,13 @@ interface Web3Api {
   web3: Web3 | null;
   contract: ethers.Contract | null;
   address: string;
-  providerUrl: string;
 }
 
 export const loadWeb3Provider = async (
   name: string,
   address: string,
-  providerUrl: string
+  providerUrl: string,
+  account: string
 ): Promise<Web3Api> => {
   const provider = getProvider(providerUrl);
 
@@ -26,7 +26,7 @@ export const loadWeb3Provider = async (
     const contract = await loadContract(provider, name, address, signer);
     const web3 = new Web3(providerUrl);
 
-    return { provider, web3, contract, address, providerUrl };
+    return { provider, web3, contract, address };
   } catch (error) {
     console.error("Failed to initialize Web3 provider:", error);
     return {
@@ -34,7 +34,6 @@ export const loadWeb3Provider = async (
       web3: null,
       contract: null,
       address: "",
-      providerUrl: "",
     };
   }
 };

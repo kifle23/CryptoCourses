@@ -10,14 +10,15 @@ interface AccountInfoProps {
   };
   connectWallet: () => void;
   reload: boolean;
+  account: string;
 }
 
 const AccountInfo: React.FC<AccountInfoProps> = ({
   web3Api,
   connectWallet,
   reload,
+  account,
 }) => {
-  const [account, setAccount] = useState<string>();
   const [balance, setBalance] = useState<string>();
 
   useEffect(() => {
@@ -27,7 +28,6 @@ const AccountInfo: React.FC<AccountInfoProps> = ({
         try {
           const balanceWei = await provider.getBalance(address);
           const balanceEth = formatEther(balanceWei);
-          setAccount(address);
           setBalance(balanceEth);
         } catch (error) {
           console.error("Error fetching account info:", error);

@@ -22,11 +22,11 @@ contract Faucet is Owned, Logger, IFaucet {
 
     receive() external payable {}
 
-    function emitLog() public override pure returns (bytes32){
+    function emitLog() public pure override returns (bytes32) {
         return bytes32("Faucet");
     }
 
-    function addFunds() override external payable {
+    function addFunds() external payable override {
         address funder = msg.sender;
         if (!funders[funder]) {
             numOfFunders++;
@@ -35,7 +35,7 @@ contract Faucet is Owned, Logger, IFaucet {
         }
     }
 
-    function withdraw(uint amount) override external limitWithdraw(amount) {
+    function withdraw(uint amount) external override limitWithdraw(amount) {
         payable(msg.sender).transfer(amount);
     }
 

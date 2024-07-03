@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import "./App.css";
-import { ethers } from "ethers";
+import { JsonRpcProvider, ethers } from "ethers";
 import Web3 from "web3";
 import { loadWeb3Provider } from "./utils/loadProvider";
 import AccountInfo from "./components/AccountInfo/AccountInfo";
 import Actions from "./components/Actions/Actions";
 
 interface Web3Api {
-  provider: any;
+  provider: JsonRpcProvider;
   web3: Web3 | null;
   contract: ethers.Contract | null;
   address: string;
-  providerUrl: string;
 }
 
 declare global {
@@ -22,41 +21,53 @@ declare global {
 
 function App() {
   const [web3Api, setWeb3Api] = useState<Web3Api>({
-    provider: null,
+    provider: new JsonRpcProvider(),
     web3: null,
     contract: null,
     address: "",
-    providerUrl: "",
   });
   const [reload, setReload] = useState<boolean>(false);
   const [account, setAccount] = useState<string>("");
 
-  useEffect(() => {
-    const initializeWeb3 = async () => {
-      const address = "0x9D286e80Ecd17561658c53EBae3c88f900Bdf204";
-      const providerUrl = "http://127.0.0.1:7545";
-      const api = await loadWeb3Provider("Faucet", address, providerUrl);
-      setWeb3Api(api);
-    };
-
-    initializeWeb3();
-  }, []);
+  const setAccountListener = () => {
+    if (window.ethereum && typeof window.ethereum.on === "function") {
+      window.ethereum.on("accountsChanged", (accounts: string[]) => {
+        setAccount(accounts[0]);
+      });
+    }
+  };
 
   useEffect(() => {
     const getAccount = async () => {
       if (!web3Api.web3) return;
-      const accounts = await web3Api.web3.eth.getAccounts();
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
       setAccount(accounts[0]);
     };
 
     getAccount();
   }, [web3Api.web3]);
 
+  useEffect(() => {
+    const initializeWeb3 = async () => {
+      const address = "0x9D286e80Ecd17561658c53EBae3c88f900Bdf204";
+      const providerUrl = "http://127.0.0.1:7545";
+      setAccountListener();
+      const api = await loadWeb3Provider("Faucet", address, providerUrl, account);
+      setWeb3Api(api);
+    };
+
+    initializeWeb3();
+  }, [account]);
+
   const connectWallet = useCallback(async () => {
-    if (web3Api.provider) {
-      await web3Api.provider.request({ method: "eth_requestAccounts" });
+    if (window.ethereum) {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+    } else {
+      console.error("Ethereum provider not found");
     }
-  }, [web3Api.provider]);
+  }, []);
 
   const reloadAccountInfo = useCallback(() => {
     setReload((prevReload) => !prevReload);
@@ -69,6 +80,7 @@ function App() {
           web3Api={web3Api}
           connectWallet={connectWallet}
           reload={reload}
+          account={account}
         />
         <Actions
           web3Api={web3Api}
