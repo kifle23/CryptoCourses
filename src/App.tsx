@@ -8,6 +8,7 @@ import Actions from "./components/Actions/Actions";
 
 interface Web3Api {
   provider: any;
+  isProviderLoaded: boolean;
   web3: Web3 | null;
   contract: ethers.Contract | null;
   address: string;
@@ -22,6 +23,7 @@ declare global {
 function App() {
   const [web3Api, setWeb3Api] = useState<Web3Api>({
     provider: null,
+    isProviderLoaded: false,
     web3: null,
     contract: null,
     address: "",
@@ -76,12 +78,16 @@ function App() {
   return (
     <div className="faucet-wrapper">
       <div className="faucet">
-        <AccountInfo
-          web3Api={web3Api}
-          connectWallet={connectWallet}
-          reload={reload}
-          account={account}
-        />
+        {web3Api.isProviderLoaded ? (
+          <AccountInfo
+            web3Api={web3Api}
+            connectWallet={connectWallet}
+            reload={reload}
+            account={account}
+          />
+        ) : (
+          <span></span>
+        )}
         <div className="message-and-actions">
           {!canConnectToContract && (
             <i className="icon has-text-danger">Connect to Ganache</i>

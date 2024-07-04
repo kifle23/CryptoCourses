@@ -4,6 +4,7 @@ import { getNetworkName, getProvider, loadContract } from "./load-contract";
 
 interface Web3Api {
   provider: any;
+  isProviderLoaded: boolean;
   web3: Web3 | null;
   contract: ethers.Contract | null;
   address: string;
@@ -25,6 +26,7 @@ export const loadWeb3Provider = async (
       if (networkName !== "ganache") {
         return {
           provider,
+          isProviderLoaded: true,
           web3: null,
           contract: null,
           address: "",
@@ -34,10 +36,11 @@ export const loadWeb3Provider = async (
       const contract = await loadContract(provider, name, address, signer);
       const web3 = new Web3(providerUrl);
 
-      return { provider, web3, contract, address };
+      return { provider,isProviderLoaded: true, web3, contract, address };
     } else {
       return {
         provider: null,
+        isProviderLoaded: true,
         web3: null,
         contract: null,
         address: "",
@@ -47,6 +50,7 @@ export const loadWeb3Provider = async (
     console.error("Failed to initialize Web3 provider:", error);
     return {
       provider: null,
+      isProviderLoaded: true,
       web3: null,
       contract: null,
       address: "",

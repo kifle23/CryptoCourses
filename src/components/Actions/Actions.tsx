@@ -22,11 +22,11 @@ const Actions: React.FC<ActionProps> = ({
 
     if (account && contract) {
       try {
-        await contract.addFunds({
+        const tx = await contract.addFunds({
           from: account,
           value: parseEther("0.1"),
         });
-        alert("Funds added to your account!");
+        await tx.wait();
         reloadAccountInfo();
       } catch (error) {
         console.error("Error adding funds:", error);
@@ -39,8 +39,8 @@ const Actions: React.FC<ActionProps> = ({
 
     if (account && address && contract) {
       try {
-        await contract.withdraw(parseEther("0.1"));
-        alert("Funds withdrawn from your account!");
+        const tx = await contract.withdraw(parseEther("0.1"));
+        await tx.wait();
         reloadAccountInfo();
       } catch (error) {
         console.error("Error withdrawing funds:", error);
