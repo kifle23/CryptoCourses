@@ -10,6 +10,14 @@ interface Web3Api {
   address: string;
 }
 
+const objWeb3Api: Web3Api = {
+  provider: null,
+  isProviderLoaded: true,
+  web3: null,
+  contract: null,
+  address: "",
+};
+
 export const loadWeb3Provider = async (
   name: string,
   address: string,
@@ -17,44 +25,32 @@ export const loadWeb3Provider = async (
 ): Promise<Web3Api> => {
   try {
     const provider = getProvider();
-    let signer = null;
-    if (provider) {
-      signer = await provider.getSigner();
-      const network = await provider.getNetwork();
-      const networkName = getNetworkName(network);
-      console.log("Provider loaded and connected to network:", networkName);
-      if (networkName !== "ganache") {
-        return {
-          provider,
-          isProviderLoaded: true,
-          web3: null,
-          contract: null,
-          address: "",
-        };
-      }
-
-      const contract = await loadContract(provider, name, address, signer);
-      const web3 = new Web3(providerUrl);
-
-      return { provider,isProviderLoaded: true, web3, contract, address };
-    } else {
-      return {
-        provider: null,
-        isProviderLoaded: true,
-        web3: null,
-        contract: null,
-        address: "",
-      };
+    if (!provider) {
+      console.error("Ethereum provider not found");
+      return { ...objWeb3Api };
     }
+
+    const signer = await provider.getSigner();
+    const network = await provider.getNetwork();
+    const networkName = getNetworkName(network);
+    console.log("Provider loaded and connected to network:", networkName);
+
+    if (networkName !== "ganache") {
+      return { ...objWeb3Api, provider };
+    }
+
+    const contract = await loadContract(provider, name, address, signer);
+    const web3 = new Web3(providerUrl);
+
+    return {
+      provider,
+      isProviderLoaded: true,
+      web3,
+      contract,
+      address,
+    };
   } catch (error) {
     console.error("Failed to initialize Web3 provider:", error);
-    return {
-      provider: null,
-      isProviderLoaded: true,
-      web3: null,
-      contract: null,
-      address: "",
-    };
+    return { ...objWeb3Api };
   }
 };
-
