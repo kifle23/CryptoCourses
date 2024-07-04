@@ -8,12 +8,14 @@ interface ActionProps {
   };
   reloadAccountInfo: () => void;
   account: string;
+  canConnectToContract: boolean;
 }
 
 const Actions: React.FC<ActionProps> = ({
   web3Api,
   reloadAccountInfo,
   account,
+  canConnectToContract,
 }) => {
   const addFunds = async () => {
     const { contract } = web3Api;
@@ -48,10 +50,18 @@ const Actions: React.FC<ActionProps> = ({
 
   return (
     <>
-      <button className="button mr-2 is-link" onClick={addFunds}>
+      <button
+        disabled={!canConnectToContract}
+        className="button mr-2 is-link"
+        onClick={addFunds}
+      >
         Donate 0.1eth
       </button>
-      <button className="button is-primary" onClick={withdraw}>
+      <button
+        disabled={!canConnectToContract}
+        className="button is-primary"
+        onClick={withdraw}
+      >
         Withdraw 0.1eth
       </button>
     </>

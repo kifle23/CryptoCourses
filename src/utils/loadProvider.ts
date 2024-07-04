@@ -12,7 +12,7 @@ interface Web3Api {
 export const loadWeb3Provider = async (
   name: string,
   address: string,
-  providerUrl: string,
+  providerUrl: string
 ): Promise<Web3Api> => {
   const provider = getProvider();
   let signer = null;
@@ -22,6 +22,14 @@ export const loadWeb3Provider = async (
     const network = await provider.getNetwork();
     const networkName = getNetworkName(network);
     console.log("Provider loaded and connected to network:", networkName);
+    if (networkName !== "ganache") {
+      return {
+        provider,
+        web3: null,
+        contract: null,
+        address: "",
+      };
+    }
 
     const contract = await loadContract(provider, name, address, signer);
     const web3 = new Web3(providerUrl);

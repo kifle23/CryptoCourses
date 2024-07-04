@@ -4,3 +4,14 @@
   justify-content: center;
   height: 100vh;
 }
+
+.message-and-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-and-actions .icon {
+  margin-bottom: 1rem;
+  width: auto;
+  align-self: flex-start;
+}

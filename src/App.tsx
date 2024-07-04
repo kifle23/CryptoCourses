@@ -34,6 +34,7 @@ function App() {
       window.ethereum.on("accountsChanged", (accounts: string[]) => {
         setAccount(accounts[0]);
       });
+      window.ethereum.on("chainChanged", () => window.location.reload());
     }
   };
 
@@ -70,6 +71,8 @@ function App() {
   }, []);
 
   const reloadAccountInfo = useCallback(() => setReload(!reload), [reload]);
+  const canConnectToContract = !!account && !!web3Api.contract;
+
   return (
     <div className="faucet-wrapper">
       <div className="faucet">
@@ -79,10 +82,16 @@ function App() {
           reload={reload}
           account={account}
         />
+        <div className="message-and-actions">
+          {!canConnectToContract && (
+            <i className="icon has-text-danger">Connect to Ganache</i>
+          )}
+        </div>
         <Actions
           web3Api={web3Api}
           reloadAccountInfo={reloadAccountInfo}
           account={account}
+          canConnectToContract={canConnectToContract}
         />
       </div>
     </div>
