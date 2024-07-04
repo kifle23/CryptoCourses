@@ -24,7 +24,7 @@ const AccountInfo: React.FC<AccountInfoProps> = ({
   useEffect(() => {
     const getAccountInfo = async () => {
       const { provider, web3, address } = web3Api;
-      if (web3 && address) {
+      if (provider && web3 && address) {
         try {
           const balanceWei = await provider.getBalance(address);
           const balanceEth = formatEther(balanceWei);
@@ -46,6 +46,19 @@ const AccountInfo: React.FC<AccountInfoProps> = ({
         </span>
         {account ? (
           <span>{account}</span>
+        ) : !web3Api.provider ? (
+          <>
+            <div className="notification is-warning is-size-6 is-rounded">
+              Wallet is not detected!{` `}
+              <a
+                rel="noreferrer"
+                target="_blank"
+                href="https://docs.metamask.io"
+              >
+                Install Metamask
+              </a>
+            </div>
+          </>
         ) : (
           <button className="button is-small" onClick={connectWallet}>
             Connect Wallet
